@@ -11,7 +11,7 @@ class Key:
     CONTROL              = 0x11
     MENU                 = 0x12
     PAUSE                = 0x13
-    CAPITAL              = 0x41 #0x14
+    CAPITAL              = 0x14
     KANA                 = 0x15
     HANGUL               = 0x15
     JUNJA                = 0x17
@@ -168,7 +168,12 @@ class Key:
     NONAME               = 0xFC
     PA1                  = 0xFD
     OEM_CLEAR            = 0xFE
-    
+
 Key.ctrl  = Key.LEFT_CTRL
 Key.alt   = Key.LEFT_ALT
 Key.shift = Key.LEFT_SHIFT
+
+Key.v_command = Key.SPACE
+Key.v_control = Key.LEFT_CTRL
+Key.v_option  = Key.LEFT_ALT
+Key.v_shift   = Key.LEFT_SHIFT

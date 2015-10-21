@@ -23,7 +23,7 @@ class InputManager:
             Key.LEFT_ALT: False,
             Key.LEFT_SHIFT: False
         }
-    
+
     def exec_binding_down(self, binding):
         print(binding)
         print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
@@ -35,7 +35,7 @@ class InputManager:
                 self.send_key(code, down)
         # 通常キー押下を実行
         self.send_key(binding.key)
-        
+
     def send_key(self, key, down=True):
         print("send_key: {key} {down}".format(key=key, down=down))
         if down:
@@ -44,21 +44,21 @@ class InputManager:
             pyauto.Input.send([pyauto.KeyUp(key)])
         if key in self.os_mods:
             self.os_mods[key] = down
-    
+
     def reset(self):
-        for key, status in self.os_mods:
+        for key, status in self.os_mods.items():
             self.send_key(key, False)
-        
+
 class Controller:
     def __init__(self):
         self.manager = InputManager()
-        
+
         # 現在モディファイアーが実際に押されているか
         self.mods = {
-            Key.SPACE: False,
-            Key.CAPITAL: False,
-            Key.LEFT_SHIFT: False,
-            Key.LEFT_ALT: False
+            Key.v_command: False,
+            Key.v_control: False,
+            Key.v_option: False,
+            Key.v_shift: False
         }
         # スペース キーがモディファイアーとして使われたか
         self.space_consumed = False
@@ -68,22 +68,29 @@ class Controller:
         # モディファイアーの優先順位は command、ctrl、option、shift
         self.binding_map = {
             #str(Key.OEM_102): [Binding(Key.LEFT)],
-            "ctrl-" + str(Key.B): [Binding(Key.LEFT)],
-            "ctrl-" + str(Key.F): [Binding(Key.RIGHT)],
-            "ctrl-" + str(Key.N): [Binding(Key.DOWN)],
-            "ctrl-" + str(Key.P): [Binding(Key.UP)],
-            "ctrl-" + str(Key.E): [Binding(Key.END)],
-            "ctrl-shift-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
-            "ctrl-shift-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
-            "command-ctrl-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
-            "command-ctrl-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
-            "command-ctrl-" + str(Key.N): [Binding(Key.DOWN, False, False, True)],
-            "command-ctrl-" + str(Key.P): [Binding(Key.UP, False, False, True)],
+            "control-" + str(Key.A): [Binding(Key.HOME)],
+            "control-" + str(Key.B): [Binding(Key.LEFT)],
+            "control-" + str(Key.D): [Binding(Key.DELETE)],
+            "control-" + str(Key.E): [Binding(Key.END)],
+            "control-" + str(Key.F): [Binding(Key.RIGHT)],
+            "control-" + str(Key.G): [Binding(Key.ESCAPE)],
+            "control-" + str(Key.H): [Binding(Key.BACK)],
+            "control-" + str(Key.I): [Binding(Key.TAB)],
+            "control-" + str(Key.M): [Binding(Key.RETURN)],
+            "control-" + str(Key.N): [Binding(Key.DOWN)],
+            "control-" + str(Key.P): [Binding(Key.UP)],
+            "control-" + str(Key.V): [Binding(Key.NEXT)],
+            "option-" + str(Key.V): [Binding(Key.PRIOR)],
+            "command-control-" + str(Key.A): [Binding(Key.HOME, False, False, True)],
+            "command-control-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
+            "command-control-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
+            "command-control-" + str(Key.N): [Binding(Key.DOWN, False, False, True)],
+            "command-control-" + str(Key.P): [Binding(Key.UP, False, False, True)],
         }
-        
+
     def on_key_down(self, key, scan):
         print("D: ", key)
-        if key == Key.ESCAPE:
+        if key == Key.F11:
             self.exit()
         # モディファイアーの場合
         if key in self.mods:
@@ -93,26 +100,26 @@ class Controller:
             return self.on_tab_down()
         # その他のキーの場合
         return self.on_normal_key_down(key)
-    
+
     def on_mod_down(self, key):
         self.mods[key] = True
-        if key == Key.SPACE:
+        if key == Key.v_command:
             self.space_consumed = False
         return True
-    
+
     def on_normal_key_down(self, key):
         # スペースキーのワンショット モディファイアーをキャンセル
-        if self.mods[Key.SPACE]:
+        if self.mods[Key.v_command]:
             self.space_consumed = True
         # バインディングを組み立て
         binding = ""
-        if self.mods[Key.SPACE]:
+        if self.mods[Key.v_command]:
             binding += "command-"
-        if self.mods[Key.CAPITAL]:
-            binding += "ctrl-"
-        if self.mods[Key.LEFT_ALT]:
-            binding += "alt-"
-        if self.mods[Key.LEFT_SHIFT]:
+        if self.mods[Key.v_control]:
+            binding += "control-"
+        if self.mods[Key.v_option]:
+            binding += "option-"
+        if self.mods[Key.v_shift]:
             binding += "shift-"
         binding += str(key)
         # バインディングを検索
@@ -122,57 +129,53 @@ class Controller:
             bindings = [
                 Binding(
                     key,
-                    self.mods[Key.SPACE],
-                    self.mods[Key.LEFT_ALT],
-                    self.mods[Key.LEFT_SHIFT]
+                    self.mods[Key.v_command],
+                    self.mods[Key.v_option],
+                    self.mods[Key.v_shift]
                 )
             ]
         for i in bindings:
             self.manager.exec_binding_down(i)
         return True
-    
+
     def on_tab_down(self):
         # スペースキーが押されていなければそのまま通す
-        if not self.mods[Key.SPACE]:
+        if not self.mods[Key.v_command]:
             return self.on_normal_key_down(Key.TAB)
         self.task_switch = True
         self.space_consumed = True
-        self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.LEFT_SHIFT]))
+        self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.v_shift]))
         return True
-    
+
     def on_key_up(self, key, scan):
         print("U: ", key)
         # モディファイアーの場合
         if key in self.mods:
             return self.on_mod_up(key)
         return True
-        
+
     def on_mod_up(self, key):
         self.mods[key] = False
-        if key == Key.SPACE:
+        if key == Key.v_command:
             # タスク切り替え中なら alt を離す
             if self.task_switch:
                 self.manager.send_key(Key.LEFT_ALT, False)
                 self.task_switch = False
             # スペース キーがモディファイアーとして使われていなければ空白を入力
             if not self.space_consumed:
-                self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.LEFT_ALT], self.mods[Key.LEFT_SHIFT]))
+                self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.v_option], self.mods[Key.v_shift]))
                 self.space_consumed = False
         return True
-    
+
     def exit(self):
         self.manager.reset()
         sys.exit(0)
-        
+
 controller = Controller()
 
 hook = pyauto.Hook()
 
-# def onClipboardChanged():
-#     print( "onClipboardChanged" )
-
 hook.keydown = controller.on_key_down
 hook.keyup = controller.on_key_up
-#hook.clipboard = onClipboardChanged
 
 pyauto.messageLoop()
