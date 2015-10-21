@@ -167,6 +167,15 @@ class Controller:
                 self.space_consumed = False
         return True
 
+    def on_mouse_down(self, x, y, vk):
+        self.manager.exec_binding_down(Binding(
+            Key.LBUTTON,
+            self.mods[Key.v_command],
+            self.mods[Key.v_option],
+            self.mods[Key.v_shift]
+        ))
+        return False
+
     def exit(self):
         self.manager.reset()
         sys.exit(0)
@@ -174,8 +183,8 @@ class Controller:
 controller = Controller()
 
 hook = pyauto.Hook()
-
 hook.keydown = controller.on_key_down
 hook.keyup = controller.on_key_up
+hook.mousedown = controller.on_mouse_down
 
 pyauto.messageLoop()
