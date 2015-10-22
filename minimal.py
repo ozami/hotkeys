@@ -83,6 +83,7 @@ class Controller:
             "option-" + str(Key.V): [Binding(Key.PRIOR)],
             "command-control-" + str(Key.A): [Binding(Key.HOME, False, False, True)],
             "command-control-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
+            "command-control-" + str(Key.E): [Binding(Key.END, False, False, True)],
             "command-control-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
             "command-control-" + str(Key.N): [Binding(Key.DOWN, False, False, True)],
             "command-control-" + str(Key.P): [Binding(Key.UP, False, False, True)],
