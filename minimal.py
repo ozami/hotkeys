@@ -24,7 +24,7 @@ class InputManager:
             Key.LEFT_SHIFT: False
         }
 
-    def exec_binding_down(self, binding):
+    def exec_binding_down(self, binding, up=True):
         print(binding)
         print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
         # モディファイアーの状態を合わせる
@@ -36,12 +36,13 @@ class InputManager:
         # 通常キー押下を実行
         self.send_key(binding.key)
         # アップ
-        self.send_key(binding.key, False)
-        for mod in ["ctrl", "alt", "shift"]:
-            code = getattr(Key, mod)
-            down = getattr(binding, mod)
-            if self.os_mods[code]:
-                self.send_key(code, False)
+        if up:
+            self.send_key(binding.key, False)
+            for mod in ["ctrl", "alt", "shift"]:
+                code = getattr(Key, mod)
+                down = getattr(binding, mod)
+                if self.os_mods[code]:
+                    self.send_key(code, False)
 
     def send_key(self, key, down=True):
         print("send_key: {key} {down}".format(key=key, down=down))
@@ -137,7 +138,7 @@ class Controller:
             bindings = [
                 Binding(
                     key,
-                    self.mods[Key.v_command],
+                    self.mods[Key.v_command] or self.mods[Key.v_control],
                     self.mods[Key.v_option],
                     self.mods[Key.v_shift]
                 )
@@ -152,7 +153,7 @@ class Controller:
             return self.on_normal_key_down(Key.TAB)
         self.task_switch = True
         self.space_consumed = True
-        self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.v_shift]))
+        self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.v_shift]), False)
         return True
 
     def on_key_up(self, key, scan):
