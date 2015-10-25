@@ -35,6 +35,13 @@ class InputManager:
                 self.send_key(code, down)
         # 通常キー押下を実行
         self.send_key(binding.key)
+        # アップ
+        self.send_key(binding.key, False)
+        for mod in ["ctrl", "alt", "shift"]:
+            code = getattr(Key, mod)
+            down = getattr(binding, mod)
+            if self.os_mods[code]:
+                self.send_key(code, False)
 
     def send_key(self, key, down=True):
         print("send_key: {key} {down}".format(key=key, down=down))
