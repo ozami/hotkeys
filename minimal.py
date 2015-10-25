@@ -177,7 +177,7 @@ class Controller:
 
     def on_mouse_down(self, x, y, vk):
         self.manager.exec_binding_down(Binding(
-            Key.LBUTTON,
+            vk,
             self.mods[Key.v_command],
             self.mods[Key.v_option],
             self.mods[Key.v_shift]
