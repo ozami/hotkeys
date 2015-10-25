@@ -88,6 +88,8 @@ class Controller:
             "control-" + str(Key.N): [Binding(Key.DOWN)],
             "control-" + str(Key.P): [Binding(Key.UP)],
             "control-" + str(Key.V): [Binding(Key.NEXT)],
+            "control-" + str(Key.OEM_PERIOD): [Binding(Key.END, True)],
+            "control-" + str(Key.OEM_COMMA): [Binding(Key.HOME, True)],
             "option-" + str(Key.V): [Binding(Key.PRIOR)],
             "command-control-" + str(Key.A): [Binding(Key.HOME, False, False, True)],
             "command-control-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
