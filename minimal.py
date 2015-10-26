@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 sys.path.append("lib")
 sys.path.append("library.zip")
@@ -70,6 +71,8 @@ class Controller:
         }
         # スペース キーがモディファイアーとして使われたか
         self.space_consumed = False
+        # 最後の通常キーが押された時刻
+        self.last_normal_key_time = time.clock()
         #  タスク切り替え（command-tab）中か
         self.task_switch = False
         # キー バインディング
@@ -113,12 +116,15 @@ class Controller:
         return self.on_normal_key_down(key)
 
     def on_mod_down(self, key):
+        if key == Key.v_command and time.clock() - self.last_normal_key_time < 0.3:
+            return self.on_normal_key_down(key)
         self.mods[key] = True
         if key == Key.v_command:
             self.space_consumed = False
         return True
 
     def on_normal_key_down(self, key):
+        self.last_normal_key_time = time.clock()
         # スペースキーのワンショット モディファイアーをキャンセル
         if self.mods[Key.v_command]:
             self.space_consumed = True
@@ -166,8 +172,7 @@ class Controller:
         return True
 
     def on_mod_up(self, key):
-        self.mods[key] = False
-        if key == Key.v_command:
+        if key == Key.v_command and self.mods[Key.v_command]:
             # タスク切り替え中なら alt を離す
             if self.task_switch:
                 self.manager.send_key(Key.LEFT_ALT, False)
@@ -176,6 +181,7 @@ class Controller:
             if not self.space_consumed:
                 self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.v_option], self.mods[Key.v_shift]))
                 self.space_consumed = False
+        self.mods[key] = False
         return True
 
     def on_mouse_down(self, x, y, vk):
