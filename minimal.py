@@ -71,6 +71,8 @@ class Controller:
         }
         # スペース キーがモディファイアーとして使われたか
         self.space_consumed = False
+        # スペース キーが押された時刻
+        self.space_down_time = time.clock()
         # 最後の通常キーが押された時刻
         self.last_normal_key_time = time.clock()
         #  タスク切り替え（command-tab）中か
@@ -121,6 +123,7 @@ class Controller:
         self.mods[key] = True
         if key == Key.v_command:
             self.space_consumed = False
+            self.space_down_time = time.clock()
         return True
 
     def on_normal_key_down(self, key):
@@ -178,7 +181,7 @@ class Controller:
                 self.manager.send_key(Key.LEFT_ALT, False)
                 self.task_switch = False
             # スペース キーがモディファイアーとして使われていなければ空白を入力
-            if not self.space_consumed:
+            if not self.space_consumed and time.clock() - self.space_down_time < 0.3:
                 self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.v_option], self.mods[Key.v_shift]))
                 self.space_consumed = False
         self.mods[key] = False
