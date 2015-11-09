@@ -118,7 +118,7 @@ class Controller:
         return self.on_normal_key_down(key)
 
     def on_mod_down(self, key):
-        if key == Key.v_command and time.clock() - self.last_normal_key_time < 0.2:
+        if key == Key.v_command and time.clock() - self.last_normal_key_time < 0.05:
             return self.on_normal_key_down(key)
         self.mods[key] = True
         if key == Key.v_command:
