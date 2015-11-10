@@ -69,12 +69,6 @@ class Controller:
             Key.v_option: False,
             Key.v_shift: False
         }
-        # スペース キーがモディファイアーとして使われたか
-        self.space_consumed = False
-        # スペース キーが押された時刻
-        self.space_down_time = time.clock()
-        # 最後の通常キーが押された時刻
-        self.last_normal_key_time = time.clock()
         #  タスク切り替え（command-tab）中か
         self.task_switch = False
         # キー バインディング
@@ -118,19 +112,10 @@ class Controller:
         return self.on_normal_key_down(key)
 
     def on_mod_down(self, key):
-        if key == Key.v_command and time.clock() - self.last_normal_key_time < 0.05:
-            return self.on_normal_key_down(key)
         self.mods[key] = True
-        if key == Key.v_command:
-            self.space_consumed = False
-            self.space_down_time = time.clock()
         return True
 
     def on_normal_key_down(self, key):
-        self.last_normal_key_time = time.clock()
-        # スペースキーのワンショット モディファイアーをキャンセル
-        if self.mods[Key.v_command]:
-            self.space_consumed = True
         # バインディングを組み立て
         binding = ""
         if self.mods[Key.v_command]:
@@ -163,7 +148,6 @@ class Controller:
         if not self.mods[Key.v_command]:
             return self.on_normal_key_down(Key.TAB)
         self.task_switch = True
-        self.space_consumed = True
         self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.v_shift]), False)
         return True
 
@@ -180,10 +164,6 @@ class Controller:
             if self.task_switch:
                 self.manager.send_key(Key.LEFT_ALT, False)
                 self.task_switch = False
-            # スペース キーがモディファイアーとして使われていなければ空白を入力
-            if not self.space_consumed and time.clock() - self.space_down_time < 0.3:
-                self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.v_option], self.mods[Key.v_shift]))
-                self.space_consumed = False
         self.mods[key] = False
         return True
 
