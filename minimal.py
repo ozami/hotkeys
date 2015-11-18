@@ -86,10 +86,11 @@ class Controller:
             "control-" + str(Key.M): [Binding(Key.RETURN)],
             "control-" + str(Key.N): [Binding(Key.DOWN)],
             "control-" + str(Key.P): [Binding(Key.UP)],
-            "control-" + str(Key.V): [Binding(Key.NEXT)],
+            "control-" + str(Key.Q): [Binding(Key.PRIOR)],
+            "control-" + str(Key.S): [Binding(Key.A, True)],
+            "control-" + str(Key.W): [Binding(Key.NEXT)],
             "control-" + str(Key.OEM_PERIOD): [Binding(Key.END, True)],
             "control-" + str(Key.OEM_COMMA): [Binding(Key.HOME, True)],
-            "option-" + str(Key.V): [Binding(Key.PRIOR)],
             "command-control-" + str(Key.A): [Binding(Key.HOME, False, False, True)],
             "command-control-" + str(Key.B): [Binding(Key.LEFT, False, False, True)],
             "command-control-" + str(Key.E): [Binding(Key.END, False, False, True)],
@@ -170,7 +171,7 @@ class Controller:
     def on_mouse_down(self, x, y, vk):
         self.manager.exec_binding_down(Binding(
             vk,
-            self.mods[Key.v_command],
+            self.mods[Key.v_command] or self.mods[Key.v_control],
             self.mods[Key.v_option],
             self.mods[Key.v_shift]
         ))
