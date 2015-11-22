@@ -73,8 +73,6 @@ class Controller:
         self.space_consumed = False
         # スペース キーが押された時刻
         self.space_down_time = time.clock()
-        # 最後の通常キーが押された時刻
-        self.last_normal_key_time = time.clock()
         #  タスク切り替え（command-tab）中か
         self.task_switch = False
         # キー バインディング
@@ -119,8 +117,6 @@ class Controller:
         return self.on_normal_key_down(key)
 
     def on_mod_down(self, key):
-        if key == Key.v_command and time.clock() - self.last_normal_key_time < 0.05:
-            return self.on_normal_key_down(key)
         self.mods[key] = True
         if key == Key.v_command:
             self.space_consumed = False
@@ -128,7 +124,12 @@ class Controller:
         return True
 
     def on_normal_key_down(self, key):
-        self.last_normal_key_time = time.clock()
+        # スペースキーを押してからあまり時間が経っていなければ
+        # スペースキーをモディファイアーとして使わない
+        if self.mods[Key.v_command] and time.clock() - self.space_down_time < 0.15:
+            print("space modifier canceled")
+            self.mods[Key.v_command] = False
+            self.manager.exec_binding_down(Binding(Key.SPACE, False, self.mods[Key.v_option], self.mods[Key.v_shift]))
         # スペースキーのワンショット モディファイアーをキャンセル
         if self.mods[Key.v_command]:
             self.space_consumed = True
