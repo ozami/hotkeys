@@ -24,9 +24,7 @@ class InputManager:
             Key.LEFT_ALT: False,
             Key.LEFT_SHIFT: False
         }
-
-    def exec_binding_down(self, binding, up=True):
-        print(binding)
+    def sync_modifiers(self, binding):
         print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
         # モディファイアーの状態を合わせる
         for mod in ["ctrl", "alt", "shift"]:
@@ -34,6 +32,29 @@ class InputManager:
             down = getattr(binding, mod)
             if self.os_mods[code] != down:
                 self.send_key(code, down)
+
+    def exec_mouse_down(self, binding, x, y):
+        print(binding)
+        print((x, y))
+        self.sync_modifiers(binding)
+        if binding.key is Key.LBUTTON:
+            cls = pyauto.MouseLeftDown
+        else:
+            cls = pyauto.MouseRightDown
+        pyauto.Input.send([cls(x, y)])
+
+    def exec_mouse_up(self, binding, x, y):
+        print(binding)
+        self.sync_modifiers(binding)
+        if binding.key is Key.LBUTTON:
+            cls = pyauto.MouseLeftUp
+        else:
+            cls = pyauto.MouseRightUp
+        pyauto.Input.send([cls(x, y)])
+
+    def exec_binding_down(self, binding, up=True):
+        print(binding)
+        self.sync_modifiers(binding)
         # 通常キー押下を実行
         self.send_key(binding.key)
         # アップ
@@ -169,13 +190,22 @@ class Controller:
         return True
 
     def on_mouse_down(self, x, y, vk):
-        self.manager.exec_binding_down(Binding(
+        self.manager.exec_mouse_down(Binding(
             vk,
             self.mods[Key.v_command] or self.mods[Key.v_control],
             self.mods[Key.v_option],
             self.mods[Key.v_shift]
-        ))
-        return False
+        ), x, y)
+        return True
+
+    def on_mouse_up(self, x, y, vk):
+        self.manager.exec_mouse_up(Binding(
+            vk,
+            self.mods[Key.v_command] or self.mods[Key.v_control],
+            self.mods[Key.v_option],
+            self.mods[Key.v_shift]
+        ), x, y)
+        return True
 
     def exit(self):
         self.manager.reset()
@@ -187,5 +217,6 @@ hook = pyauto.Hook()
 hook.keydown = controller.on_key_down
 hook.keyup = controller.on_key_up
 hook.mousedown = controller.on_mouse_down
+hook.mouseup = controller.on_mouse_up
 
 pyauto.messageLoop()
