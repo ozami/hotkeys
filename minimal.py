@@ -31,8 +31,8 @@ class InputManager:
                 self.send_key(code, mods[code])
 
     def exec_binding_down(self, binding, up=True):
-        print(binding)
-        print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
+        #print(binding)
+        #print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
         # モディファイアーの状態を保存して同期
         mods_copy = self.os_mods.copy()
         self._sync_modifiers({
@@ -49,7 +49,7 @@ class InputManager:
         self._sync_modifiers(mods_copy)
 
     def send_key(self, key, down=True):
-        print("send_key: {key} {down}".format(key=key, down=down))
+        #print("send_key: {key} {down}".format(key=key, down=down))
         if down:
             pyauto.Input.send([pyauto.KeyDown(key)])
         else:
@@ -103,7 +103,7 @@ class Controller:
         }
 
     def on_key_down(self, key, scan):
-        print("D: ", key)
+        #print("D: ", key)
         if key == Key.F11:
             self.exit()
         # モディファイアーの場合
@@ -117,7 +117,8 @@ class Controller:
 
     def on_mod_down(self, key):
         self.mods[key] = True
-        self.manager.send_key(key)
+        if key != Key.v_control:
+            self.manager.send_key(key)
         return True
 
     def on_normal_key_down(self, key):
@@ -160,7 +161,7 @@ class Controller:
         return True
 
     def on_key_up(self, key, scan):
-        print("U: ", key)
+        #print("U: ", key)
         # モディファイアーの場合
         if key in self.mods:
             return self.on_mod_up(key)
@@ -170,7 +171,7 @@ class Controller:
         if key == Key.v_command and self.mods[Key.v_command]:
             # タスク切り替え中なら alt を離す
             if self.task_switch:
-                print("task-switch end")
+                #print("task-switch end")
                 self.manager.send_key(Key.LEFT_ALT, False)
                 self.task_switch = False
         self.mods[key] = False
