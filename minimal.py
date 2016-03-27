@@ -100,6 +100,8 @@ class Controller:
             "command-control-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
             "command-control-" + str(Key.N): [Binding(Key.DOWN, False, False, True)],
             "command-control-" + str(Key.P): [Binding(Key.UP, False, False, True)],
+            "command-control-" + str(Key.D): [Binding(Key.DELETE, True)],
+            "command-control-" + str(Key.H): [Binding(Key.BACK, True)],
         }
 
     def on_key_down(self, key, scan):
