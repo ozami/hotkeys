@@ -25,28 +25,31 @@ class InputManager:
             Key.LEFT_SHIFT: False
         }
 
+    def _sync_modifiers(self, mods):
+        for code in [Key.LEFT_CTRL, Key.LEFT_ALT, Key.LEFT_SHIFT]:
+            if self.os_mods[code] != mods[code]:
+                self.send_key(code, mods[code])
+
     def exec_binding_down(self, binding, up=True):
-        print(binding)
-        print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
-        # モディファイアーの状態を合わせる
-        for mod in ["ctrl", "alt", "shift"]:
-            code = getattr(Key, mod)
-            down = getattr(binding, mod)
-            if self.os_mods[code] != down:
-                self.send_key(code, down)
+        #print(binding)
+        #print("os_mods: ctrl = {ctrl}, alt = {alt}, shift = {shift}".format(ctrl=self.os_mods[Key.ctrl], alt=self.os_mods[Key.alt], shift=self.os_mods[Key.shift]))
+        # モディファイアーの状態を保存して同期
+        mods_copy = self.os_mods.copy()
+        self._sync_modifiers({
+            Key.LEFT_CTRL: binding.ctrl,
+            Key.LEFT_ALT: binding.alt,
+            Key.LEFT_SHIFT: binding.shift
+        })
         # 通常キー押下を実行
         self.send_key(binding.key)
         # アップ
         if up:
             self.send_key(binding.key, False)
-            for mod in ["ctrl", "alt", "shift"]:
-                code = getattr(Key, mod)
-                down = getattr(binding, mod)
-                if self.os_mods[code]:
-                    self.send_key(code, False)
+        # モディファイアーの状態を戻す
+        self._sync_modifiers(mods_copy)
 
     def send_key(self, key, down=True):
-        print("send_key: {key} {down}".format(key=key, down=down))
+        #print("send_key: {key} {down}".format(key=key, down=down))
         if down:
             pyauto.Input.send([pyauto.KeyDown(key)])
         else:
@@ -97,10 +100,12 @@ class Controller:
             "command-control-" + str(Key.F): [Binding(Key.RIGHT, False, False, True)],
             "command-control-" + str(Key.N): [Binding(Key.DOWN, False, False, True)],
             "command-control-" + str(Key.P): [Binding(Key.UP, False, False, True)],
+            "command-control-" + str(Key.D): [Binding(Key.DELETE, True)],
+            "command-control-" + str(Key.H): [Binding(Key.BACK, True)],
         }
 
     def on_key_down(self, key, scan):
-        print("D: ", key)
+        #print("D: ", key)
         if key == Key.F11:
             self.exit()
         # モディファイアーの場合
@@ -114,6 +119,8 @@ class Controller:
 
     def on_mod_down(self, key):
         self.mods[key] = True
+        if key != Key.v_control:
+            self.manager.send_key(key)
         return True
 
     def on_normal_key_down(self, key):
@@ -148,12 +155,15 @@ class Controller:
         # スペースキーが押されていなければそのまま通す
         if not self.mods[Key.v_command]:
             return self.on_normal_key_down(Key.TAB)
-        self.task_switch = True
-        self.manager.exec_binding_down(Binding(Key.TAB, False, True, self.mods[Key.v_shift]), False)
+        if not self.task_switch:
+            self.manager.send_key(Key.RIGHT_CTRL, False)
+            self.manager.send_key(Key.LEFT_ALT)
+            self.task_switch = True
+        self.manager.send_key(Key.TAB)
         return True
 
     def on_key_up(self, key, scan):
-        print("U: ", key)
+        #print("U: ", key)
         # モディファイアーの場合
         if key in self.mods:
             return self.on_mod_up(key)
@@ -163,19 +173,12 @@ class Controller:
         if key == Key.v_command and self.mods[Key.v_command]:
             # タスク切り替え中なら alt を離す
             if self.task_switch:
+                #print("task-switch end")
                 self.manager.send_key(Key.LEFT_ALT, False)
                 self.task_switch = False
         self.mods[key] = False
+        self.manager.send_key(key, False)
         return True
-
-    def on_mouse_down(self, x, y, vk):
-        self.manager.exec_binding_down(Binding(
-            vk,
-            self.mods[Key.v_command] or self.mods[Key.v_control],
-            self.mods[Key.v_option],
-            self.mods[Key.v_shift]
-        ))
-        return False
 
     def exit(self):
         self.manager.reset()
@@ -186,6 +189,5 @@ controller = Controller()
 hook = pyauto.Hook()
 hook.keydown = controller.on_key_down
 hook.keyup = controller.on_key_up
-hook.mousedown = controller.on_mouse_down
 
 pyauto.messageLoop()

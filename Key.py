@@ -173,7 +173,7 @@ Key.ctrl  = Key.LEFT_CTRL
 Key.alt   = Key.LEFT_ALT
 Key.shift = Key.LEFT_SHIFT
 
-Key.v_command = Key.RIGHT_CTRL
-Key.v_control = Key.LEFT_CTRL
+Key.v_command = Key.LEFT_CTRL
+Key.v_control = Key.RIGHT_CTRL
 Key.v_option  = Key.LEFT_ALT
 Key.v_shift   = Key.LEFT_SHIFT
