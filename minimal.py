@@ -103,6 +103,7 @@ class Controller:
             "command-control-" + str(Key.D): [Binding(Key.DELETE, True)],
             "command-control-" + str(Key.H): [Binding(Key.BACK, True)],
             str(Key.HIRAGANA_KATAKANA): [Binding(Key.LEFT, False, True)],
+            str(Key.NONCONVERT): [Binding(Key.W, True)],
         }
 
     def on_key_down(self, key, scan):
