@@ -159,6 +159,7 @@ class Key:
     OEM_102	            = 0xE2
     PROCESSKEY	        = 0xE5
     PACKET	            = 0xE7
+    HIRAGANA_KATAKANA    = 0xF2
     ATTN                 = 0xF6
     CRSEL                = 0xF7
     EXSEL                = 0xF8
