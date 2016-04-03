@@ -108,7 +108,7 @@ class Controller:
 
     def on_key_down(self, key, scan):
         #print("D: ", key)
-        if key == Key.F11:
+        if key == Key.F4:
             self.exit()
         # モディファイアーの場合
         if key in self.mods:
