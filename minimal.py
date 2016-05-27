@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import webbrowser
 
 sys.path.append("lib")
 sys.path.append("library.zip")
@@ -110,6 +111,9 @@ class Controller:
         #print("D: ", key)
         if key == Key.F4:
             self.exit()
+        if key == Key.BROWSER_HOME:
+            pyauto.shellExecute("open", "chrome")
+            return True
         # モディファイアーの場合
         if key in self.mods:
             return self.on_mod_down(key)
