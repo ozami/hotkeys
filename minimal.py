@@ -78,6 +78,7 @@ class Controller:
         # モディファイアーの優先順位は command、ctrl、option、shift
         self.binding_map = {
             str(Key.OEM_102): [Binding(Key.OEM_102, False, False, True)],
+            "control-" + str(Key.SPACE): [Binding(Key.U, True)],
             "control-" + str(Key.A): [Binding(Key.HOME)],
             "control-" + str(Key.B): [Binding(Key.LEFT)],
             "control-" + str(Key.D): [Binding(Key.DELETE)],
